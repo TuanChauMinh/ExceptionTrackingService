@@ -1,0 +1,5 @@
+D:\Coding Life\LoggingService\LoggingService\LoggingService\obj\Debug\net5.0\LoggingService.csproj.AssemblyReference.cache
+D:\Coding Life\LoggingService\LoggingService\LoggingService\obj\Debug\net5.0\LoggingService.GeneratedMSBuildEditorConfig.editorconfig
+D:\Coding Life\LoggingService\LoggingService\LoggingService\obj\Debug\net5.0\LoggingService.AssemblyInfoInputs.cache
+D:\Coding Life\LoggingService\LoggingService\LoggingService\obj\Debug\net5.0\LoggingService.AssemblyInfo.cs
+D:\Coding Life\LoggingService\LoggingService\LoggingService\obj\Debug\net5.0\LoggingService.csproj.CoreCompileInputs.cache
