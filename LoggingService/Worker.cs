@@ -11,12 +11,14 @@ namespace LoggingService
         private FileSystemWatcher _watcher;
         private readonly string _inputFolder;
         private readonly string _logFileName;
+        private readonly string _slackHookUrl;
 
         public Worker(ILogger<Worker> logger, IOptions<WatcherConfiguration> watcherOption)
         {
             _logger = logger;
             _inputFolder = watcherOption.Value.FolderDirectory;
             _logFileName = watcherOption.Value.LogFileName;
+            _slackHookUrl = watcherOption.Value.SlackHookUrl;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -46,9 +48,9 @@ namespace LoggingService
             if (e.FullPath == $"{_inputFolder}\\{_logFileName}")
             {
                 var client = new HttpClient();
-                var jsonRequest = JsonConvert.SerializeObject(new { text = "hello world" });
+                var jsonRequest = JsonConvert.SerializeObject(new { text = "Text File has been changed" });
 
-                client.BaseAddress = new Uri("https://hooks.slack.com/services/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");
+                client.BaseAddress = new Uri(_slackHookUrl);
                 client.DefaultRequestHeaders.Accept.Add( new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json") );
 
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, client.BaseAddress.AbsoluteUri);

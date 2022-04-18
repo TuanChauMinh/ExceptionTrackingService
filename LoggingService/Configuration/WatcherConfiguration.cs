@@ -10,5 +10,6 @@ namespace LoggingService.Configuration
     {
         public string FolderDirectory { get; set; }
         public string LogFileName { get; set; }
+        public string SlackHookUrl { get; set; }
     }
 }
