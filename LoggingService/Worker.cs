@@ -1,5 +1,7 @@
 using LoggingService.Configuration;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace LoggingService
 {
@@ -43,7 +45,20 @@ namespace LoggingService
         {
             if (e.FullPath == $"{_inputFolder}\\{_logFileName}")
             {
-                _logger.LogInformation($"Log Change at: {DateTime.Now}");
+                var client = new HttpClient();
+                var jsonRequest = JsonConvert.SerializeObject(new { text = "hello world" });
+
+                client.BaseAddress = new Uri("https://hooks.slack.com/services/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");
+                client.DefaultRequestHeaders.Accept.Add( new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json") );
+
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, client.BaseAddress.AbsoluteUri);
+
+                request.Content =  new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+                _ = client.SendAsync(request)
+                    .ContinueWith(responseTask =>
+                    {
+                        _logger.LogInformation($"Log Change at: {DateTime.Now}");
+                    });
             }
         }
 
