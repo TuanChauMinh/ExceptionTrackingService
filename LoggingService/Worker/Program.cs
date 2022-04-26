@@ -6,7 +6,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>
     {
         IConfiguration configuration = hostContext.Configuration;
-        services.Configure<WatcherConfiguration>(configuration.GetSection(nameof(WatcherConfiguration)));
+        services.Configure<WatcherConfigurationEntity>(configuration.GetSection(nameof(WatcherConfigurationEntity)));
         services.AddHostedService<Worker>();
     })
     .Build();

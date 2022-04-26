@@ -1,6 +1,8 @@
 using LoggingService.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System.Collections.Specialized;
+using System.Net;
 using System.Text;
 
 namespace LoggingService
@@ -13,7 +15,9 @@ namespace LoggingService
         private readonly string _logFileName;
         private readonly string _slackHookUrl;
 
-        public Worker(ILogger<Worker> logger, IOptions<WatcherConfiguration> watcherOption)
+        //private readonly List<string> exceptionKeywords = new List<string> { "Exception", "Error" };
+
+        public Worker(ILogger<Worker> logger, IOptions<WatcherConfigurationEntity> watcherOption)
         {
             _logger = logger;
             _inputFolder = watcherOption.Value.FolderDirectory;
@@ -47,20 +51,31 @@ namespace LoggingService
         {
             if (e.FullPath == $"{_inputFolder}\\{_logFileName}")
             {
-                var client = new HttpClient();
-                var jsonRequest = JsonConvert.SerializeObject(new { text = "Text File has been changed" });
+                var data = new NameValueCollection();
+                data["token"] = "";
+                data["channel"] = "";
+                data["as_user"] = "true";
+               
+                //data["attachments"] = "[{\"fallback\":\"dummy\", \"text\":\"this is an attachment\"}]";
 
-                client.BaseAddress = new Uri(_slackHookUrl);
-                client.DefaultRequestHeaders.Accept.Add( new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json") );
+                var client = new WebClient();
 
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, client.BaseAddress.AbsoluteUri);
-
-                request.Content =  new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-                _ = client.SendAsync(request)
-                    .ContinueWith(responseTask =>
+                var fileLines = File.ReadAllLines(e.FullPath).TakeLast(10).ToList();
+                var index = 0;
+                foreach (var line in fileLines)
+                {
+                    
+                    if(line.Contains("Exception"))
                     {
-                        _logger.LogInformation($"Log Change at: {DateTime.Now}");
-                    });
+                        
+                        data["text"] = fileLines[index + 1];
+                        var response = client.UploadValues("https://slack.com/api/chat.postMessage", "POST", data);
+                    }
+
+                    index++;
+                }
+
+
             }
         }
 
@@ -75,15 +90,6 @@ namespace LoggingService
             _logger.LogInformation("Stopping Service");
             _watcher.EnableRaisingEvents = false;
             return base.StopAsync(cancellationToken);
-        }
-
-
-
-        private void Watcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            
-                _logger.LogInformation($"Log Change at: {DateTime.Now}");
-
         }
     }
 }
