@@ -58,7 +58,6 @@ namespace LoggingService
                 data["channel"] = "";
                 data["as_user"] = "true";
                
-                //data["attachments"] = "[{\"fallback\":\"dummy\", \"text\":\"this is an attachment\"}]";
                 var client = new WebClient();
                 var fileLines = File.ReadAllLines(e.FullPath).TakeLast(100).ToList();
 
@@ -67,10 +66,6 @@ namespace LoggingService
                 {
                     if(line.Contains("Error"))
                     {
-                        dynamic jsonObject = new JObject();
-                        jsonObject.text = line;
-                        jsonObject.fallback = "dummy";
-
                         data["text"] = "EXCEPTION APPEARED \n" + line;
                         data["attachments"] = "[{\"fallback\":\"dummy\", \"text\":\""+ fileLines[index + 1] + "\"}]";
 
