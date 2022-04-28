@@ -1,9 +1,11 @@
 using LoggingService.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace LoggingService
 {
@@ -57,18 +59,21 @@ namespace LoggingService
                 data["as_user"] = "true";
                
                 //data["attachments"] = "[{\"fallback\":\"dummy\", \"text\":\"this is an attachment\"}]";
-
                 var client = new WebClient();
+                var fileLines = File.ReadAllLines(e.FullPath).TakeLast(100).ToList();
 
-                var fileLines = File.ReadAllLines(e.FullPath).TakeLast(10).ToList();
                 var index = 0;
                 foreach (var line in fileLines)
                 {
-                    
-                    if(line.Contains("Exception"))
+                    if(line.Contains("Error"))
                     {
-                        
-                        data["text"] = fileLines[index + 1];
+                        dynamic jsonObject = new JObject();
+                        jsonObject.text = line;
+                        jsonObject.fallback = "dummy";
+
+                        data["text"] = "EXCEPTION APPEARED \n" + line;
+                        data["attachments"] = "[{\"fallback\":\"dummy\", \"text\":\""+ fileLines[index + 1] + "\"}]";
+
                         var response = client.UploadValues("https://slack.com/api/chat.postMessage", "POST", data);
                     }
 
